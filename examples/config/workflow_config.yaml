@@ -6,15 +6,10 @@ workflow:
     ops: 
       - FillMissing: 
           fill_val: 0
-          test: 1
-          test2: 1
-      - Logop:
-          test : 1
-    output_name: name
+      - LogOp:
+    output_name: name_log
 
   - selection: [name, name2]
     ops: 
       - Normalize: 
-      - Logop:
-    output_name: name2
-  
+    output_name: [name_norm, name2_norm]
