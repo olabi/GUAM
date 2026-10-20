@@ -8,7 +8,7 @@ import cudf as cd
 import dask.dataframe as dd
 import dask_cudf as dcd
 
-from typing import Optional
+from typing import Any, Optional
 
 import nvtabular as nvt
 from nvtabular import ops
@@ -74,7 +74,7 @@ class DataLoader():
         # 6. 지원하지 않는 타입인 경우
         else:
             raise TypeError(f"Unsupported data source type: {type(data_source)}")
-    def _build_workflow(self, workflows:Optional[Union[Dict[str], nvt.Workflow, None]]=None) -> nvt.Workflow:
+    def _build_workflow(self, workflows:Optional[Union[Dict[str, Any], nvt.Workflow, None]]=None) -> nvt.Workflow:
         if workflows == None:
             return None
         
