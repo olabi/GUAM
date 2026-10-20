@@ -1,0 +1,9 @@
+.ipynb_checkpoints
+__pycache__
+dist
+cufile*
+*.csv
+Test*
+processed_data
+categories
+.venv

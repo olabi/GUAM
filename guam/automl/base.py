@@ -8,6 +8,7 @@ import dask.dataframe as dd
 from omegaconf import OmegaConf
 
 
+import nvtabular as nvt
 from typing import Optional, Dict, List
 from ..datalibs.base import DataLoader
 from ..utils import *
@@ -21,16 +22,15 @@ class AutoML:
             state:Optional[str] = None,
             gpus:Optional[bool] =True
     ):
-        assert workflow_config is None or workflow_config.endswith('.yaml'), f"Check Pipelines Config now {workflow_config}"
+        assert workflow_config is None or workflow_config.endswith('.yaml') or isinstance(workflow_config, nvt.Workflow), f"Check Pipelines Config now {workflow_config}"
 
         # Make Using Dask Backend cudf
         if gpus:
             dask.config.set({"dataframe.backend": "cudf"})
 
         # If user inputs the worflow config, make worfklow
-        if workflow_config:
-            wconfig = OmegaConf.load(workflow_config).workflow
+        if workflow_config.endswith('.yaml'):
+            workflow_config = OmegaConf.load(workflow_config).workflow
 
         # Make DataLoader
-
-        self.DataLoader = DataLoader()
+        self.DataLoader = DataLoader(data_source, workflow_config=workflow_config)
