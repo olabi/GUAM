@@ -91,15 +91,16 @@ class DataLoader():
             all_pipelines = []
 
             for config in workflows:
-                op_chain    = list(config.get('selection'))
+                selection   = list(config.get('selection'))
+                op_chain    = selection
                 ops_configs = config.get('ops')
-                output      = str(config.get('output_name')) if config.get('output_name') else None
+                output      = config.get('output_name')
 
                 if ops_configs:
                     op_chain = self._ops_chain_parser(op_chain, ops_configs)
-                    
+
                 if output:
-                    op_chain = op_chain >> ops.Rename(name=output)
+                    op_chain = op_chain >> self._rename_op(selection, output)
 
                 all_pipelines.append(op_chain)
 
@@ -110,6 +111,18 @@ class DataLoader():
 
         else:
             raise TypeError(f"Unsupported workflow input type: {type(workflows)}")
+
+    def _rename_op(self, selection:List[str], output_name:Union[str, List[str], omegaconf.listconfig.ListConfig])->ops.Rename:
+        """Rename op for `output_name`: one name per selected column, matched by position."""
+        names = [output_name] if isinstance(output_name, str) else [str(name) for name in output_name]
+        if len(names) != len(selection):
+            raise ValueError(f"output_name has {len(names)} name(s) for {len(selection)} selected column(s): {names} vs {selection}")
+
+        if len(names) == 1:
+            return ops.Rename(name=names[0])
+
+        mapping = dict(zip(selection, names))
+        return ops.Rename(f=lambda col: mapping.get(col, col))
 
     def _ops_chain_parser(self, ops_chain:List[str], ops_configs:Optional[Union[omegaconf.listconfig.ListConfig,None]]=None)->None:
         for ops_config in ops_configs:
